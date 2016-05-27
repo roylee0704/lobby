@@ -1,10 +1,24 @@
 package lobby
 
+import "container/heap"
+
 // Worker is an ADT, an item in priority queue, it performs dispatched job,
 // and eports back when it's completed.
 type Worker struct {
-	i       int // index to be used by heap.interface.
-	pending int // as a measure of load
+	i        int          // index to be used by heap.interface.
+	pending  int          // as a measure of load
+	requests chan Request // worker has own job queues to be passed into.
+}
+
+// work is a [go-routine] that performs any given job function, one at a time,
+// upon job completion, it reports back to balancer and
+// requester (request-response model).
+func (w *Worker) work(done chan *Worker) {
+	for r := range w.requests {
+		result := r.Fn() // perform job function
+		r.C <- result    // response end result to requester
+		done <- w        // report job completion to balancer
+	}
 }
 
 // Pool implements heap.interface, a piority queue based on workload.
@@ -41,4 +55,49 @@ func (p *Pool) Pop() interface{} {
 	*p = old[0 : n-1] // in event of len(slice) update.
 
 	return x
+}
+
+// Balancer maintains a pool of workers, and a channel for worker to report job
+// completion.
+type Balancer struct {
+	pool Pool
+	done chan *Worker
+}
+
+// NewBalancer initializes a pool of n workers.Each worker be given a
+// `walkie-talkie` before work, so they could report back upon job completion.
+func NewBalancer(nWorker int, nRequester int) *Balancer {
+
+	workers := make(Pool, 0, nWorker)
+	done := make(chan *Worker)
+	for i := 0; i <= nWorker; i++ {
+		w := &Worker{
+			requests: make(chan Request, nRequester),
+			pending:  0,
+		}
+		go w.work(done) // get ready to work
+		heap.Push(&workers, w)
+	}
+
+	return &Balancer{
+		pool: workers,
+		done: done,
+	}
+}
+
+// Balance [go-routine] multiplexes job requests and job completions
+func (b Balancer) Balance(work chan Request) {
+	for {
+		select {
+		case w := <-work:
+			b.dispatch(w)
+		}
+	}
+}
+
+func (b Balancer) dispatch(r Request) {
+	w := heap.Pop(&b.pool).(*Worker)
+	w.pending++
+	w.requests <- r
+	heap.Push(&b.pool, w)
 }
