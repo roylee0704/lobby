@@ -16,14 +16,5 @@ func main() {
 	}
 
 	go lobby.Requester(f, work)
-
-	func(req <-chan lobby.Request) {
-		for {
-			select {
-			case r := <-req:
-				r.C <- r.Fn()
-			}
-		}
-
-	}(work)
+	lobby.NewBalancer(5, 50).Balance(work)
 }
