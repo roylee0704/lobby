@@ -116,15 +116,12 @@ func (b Balancer) dispatch(r Request) {
 	w.pending++
 	w.requests <- r
 	heap.Push(&b.pool, w)
-
-	fmt.Println(b)
+	fmt.Println(b) // live-stat
 }
 
 func (b Balancer) complete(w *Worker) {
-
 	w = heap.Remove(&b.pool, w.i).(*Worker)
 	w.pending--
 	heap.Push(&b.pool, w)
-	fmt.Println(b)
-
+	fmt.Println(b) // live-stat
 }
