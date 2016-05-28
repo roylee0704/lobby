@@ -17,7 +17,7 @@ func TestPop(t *testing.T) {
 		n := len(test.p)
 		w := test.p[n-1]
 		if w != test.p.Pop() {
-			t.Error("priority queue poping failed.")
+			t.Error("priority queue popping failed.")
 		}
 	}
 }
