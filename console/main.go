@@ -17,6 +17,7 @@ func main() {
 
 	flag.IntVar(&nRequester, "r", 50, "Number of requesters")
 	flag.IntVar(&nWorker, "w", 10, "Number of workers")
+	flag.Parse()
 
 	work := make(chan lobby.Request)
 
