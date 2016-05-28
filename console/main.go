@@ -26,7 +26,7 @@ func main() {
 	}
 
 	for i := 0; i < nRequester; i++ {
-		go lobby.Requester(f, work) // one worker only.
+		go lobby.Requester(f, work)
 	}
 
 	lobby.NewBalancer(nWorker, nRequester).Balance(work)

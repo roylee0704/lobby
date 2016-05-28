@@ -105,9 +105,13 @@ func (b Balancer) Balance(work chan Request) {
 func (b Balancer) String() string {
 	var buf bytes.Buffer
 
+	sum := 0
 	for _, w := range b.pool {
+		sum += w.pending
 		buf.WriteString(fmt.Sprintf("%2d", w.pending))
 	}
+
+	buf.WriteString(fmt.Sprintf("%8.2f", float64(sum)/float64(len(b.pool))))
 	return buf.String()
 }
 
