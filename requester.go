@@ -1,7 +1,6 @@
 package lobby
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 )
@@ -26,6 +25,6 @@ func Requester(workFn func() int, work chan<- Request) {
 		work <- Request{Fn: workFn, C: c}               // send work via chan
 
 		<-c // wait for job completion
-		fmt.Println("job done!")
+		//fmt.Println("job done!")
 	}
 }
