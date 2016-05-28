@@ -1,20 +1,34 @@
 package main
 
 import (
-	"fmt"
+	"flag"
+	"math/rand"
+	"time"
 
 	"github.com/roylee0704/lobby"
 )
 
+var (
+	nRequester = 0
+	nWorker    = 0
+)
+
 func main() {
+
+	flag.IntVar(&nRequester, "r", 50, "Number of requesters")
+	flag.IntVar(&nWorker, "w", 10, "Number of workers")
 
 	work := make(chan lobby.Request)
 
 	f := func() int {
-		fmt.Println("working on job request!")
+		time.Sleep(time.Duration(rand.Int63n(5e9)))
 		return 1
 	}
 
-	go lobby.Requester(f, work)
-	lobby.NewBalancer(5, 50).Balance(work)
+	for i := 0; i < nRequester; i++ {
+		go lobby.Requester(f, work) // one worker only.
+	}
+
+	lobby.NewBalancer(nWorker, nRequester).Balance(work)
+
 }
