@@ -11,7 +11,7 @@ https://medium.com/@roylee0704/load-balancer-93118673f31a#.hy2o1x15z
 
 ## Simulations
 
-Simulating lobby with `requester:100` , `worker:10`:
+Simulating lobby with `requester:100` , `worker:50`:
 - each requester sends one request at a time, waits for response, and rest for 1-4 seconds before another new request.
 - load-balancer maintains a priority-based pool of workers, where most lightly-loaded worker will be assigned to serve the request.
 - each worker maintains a job queue of `r requesters`.
@@ -23,4 +23,4 @@ Note:
 - currently each print shows average workload in the worker pool.
 
 
-[![asciicast](https://asciinema.org/a/4dc1js4vtdfehxuo6sz8gpdx6.png)](https://asciinema.org/a/4dc1js4vtdfehxuo6sz8gpdx6)
+[![asciicast](https://asciinema.org/a/5w7ejqyn7a7qym7pej0in90nx.png)](https://asciinema.org/a/5w7ejqyn7a7qym7pej0in90nx)
