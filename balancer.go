@@ -1,6 +1,10 @@
 package lobby
 
-import "container/heap"
+import (
+	"bytes"
+	"container/heap"
+	"fmt"
+)
 
 // Worker is an ADT, an item in priority queue, it performs dispatched job,
 // and eports back when it's completed.
@@ -89,10 +93,22 @@ func NewBalancer(nWorker int, nRequester int) *Balancer {
 func (b Balancer) Balance(work chan Request) {
 	for {
 		select {
-		case w := <-work:
-			b.dispatch(w)
+		case r := <-work:
+			b.dispatch(r)
+		case w := <-b.done:
+			b.complete(w)
 		}
 	}
+}
+
+// String outputs balancer in string
+func (b Balancer) String() string {
+	var buf bytes.Buffer
+
+	for _, w := range b.pool {
+		buf.WriteString(fmt.Sprintf("%2d", w.pending))
+	}
+	return buf.String()
 }
 
 func (b Balancer) dispatch(r Request) {
@@ -100,4 +116,15 @@ func (b Balancer) dispatch(r Request) {
 	w.pending++
 	w.requests <- r
 	heap.Push(&b.pool, w)
+
+	fmt.Println(b)
+}
+
+func (b Balancer) complete(w *Worker) {
+
+	w = heap.Remove(&b.pool, w.i).(*Worker)
+	w.pending--
+	heap.Push(&b.pool, w)
+	fmt.Println(b)
+
 }
